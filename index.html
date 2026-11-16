@@ -2,26 +2,402 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Світ «Піксельний Пік»</title>
-</head>
-<body>
-  <h1>Моя тема: Світ «Піксельний Пік» (Ретро-ігри та скелелазіння)</h1>
-  <p>Тут буде мій світ, що поєднує 8-бітну ностальгію та дух скелелазіння.</p>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Підключення піксельного та моноширинного шрифтів з підтримкою кирилиці -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #090b10;
+      --bg-panel: #121622;
+      --bg-card: #181e2e;
+      --neon-cyan: #00f5d4;
+      --neon-pink: #ff2a85;
+      --neon-amber: #ffb703;
+      --neon-lime: #39ff14;
+      --neon-purple: #9b5de5;
+      --border-pixel: #2e3856;
+    }
 
-  <h2>Проєкти мого світу:</h2>
-  <ul>
-    <li>
-      <strong>Гра:</strong> Піксельна ретро-гра в стилі 8-біт про сходження на незвідану скелю зі зміною погоди та вибором спорядження.
-    </li>
-    <li>
-      <strong>Бот:</strong> Telegram-бот з рандомним генератором челенджів для скелелазів на кожне тренування (наприклад, «пролізти трасу без одного зачепу»).
-    </li>
-    <li>
-      <strong>Сайт:</strong> Каталог-галерея піксельних артів на тему гір, скель та екстремального спорту.
-    </li>
-    <li>
-      <strong>Застосунок:</strong> Простий нотатник для запису часу тренувань, розігріву та нотаток щодо техніки лазіння.
-    </li>
-  </ul>
-</body>
-</html>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 245, 212, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(255, 42, 133, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(18, 22, 34, 0.8) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 22, 34, 0.8) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+      overflow-x: hidden;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', 'JetBrains Mono', monospace;
+      line-height: 1.45;
+    }
+
+    /* Ефект CRT-сканлайнів для ретро-атмосфери */
+    .crt-overlay {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.18) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 50;
+    }
+
+    /* 8-бітні рамки та тіні */
+    .pixel-box {
+      background-color: var(--bg-panel);
+      border: 3px solid var(--border-pixel);
+      box-shadow: 
+        inset 0 0 0 2px #0b0e17,
+        4px 4px 0px #040508;
+      border-radius: 6px;
+    }
+
+    .pixel-box-cyan {
+      border-color: var(--neon-cyan);
+      box-shadow: 
+        0 0 14px rgba(0, 245, 212, 0.2),
+        4px 4px 0px #040508;
+    }
+
+    .pixel-btn {
+      position: relative;
+      border: 2px solid currentColor;
+      box-shadow: 3px 3px 0px #000000;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 4px;
+    }
+
+    .pixel-btn:hover:not(:disabled) {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px #000000;
+    }
+
+    .pixel-btn:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000000;
+    }
+
+    .pixel-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Анімація блимаючого курсора */
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .cursor-blink {
+      animation: blink 1s infinite;
+    }
+
+    /* Піксельне масштабування Canvas */
+    canvas.pixelated {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Стилізація скролбару */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0e17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2e3856;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f5d4;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Декоративний шар ретро-монітора -->
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <!-- Верхня панель та головний заголовок за шаблоном -->
+  <header class="border-b-4 border-[#2e3856] bg-[#0d111c]/95 sticky top-0 z-40 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs text-[#00f5d4] mb-1">
+            <span class="inline-block w-2.5 h-2.5 bg-[#39ff14] animate-pulse"></span>
+            <span>SYSTEM READY // 8-BIT CLIMBING UNIVERSE v1.0</span>
+          </div>
+          <!-- Адаптований заголовок за шаблоном користувача -->
+          <h1 class="font-pixel text-lg sm:text-xl md:text-2xl text-white tracking-wide drop-shadow-[2px_2px_0_#ff2a85]">
+            Світ «Піксельний Пік»
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1.5">
+            Ретро-ігри та скелелазіння: підкорюй 8-бітні скелі, тренуйся з ботом, колекціонуй піксель-арт та веди журнал сходжень<span class="cursor-blink text-[#00f5d4]">_</span>
+          </p>
+        </div>
+
+        <!-- Кнопка керування звуком та індикатор рекорду -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="px-3 py-2 bg-[#161c2c] border-2 border-[#2e3856] rounded text-xs">
+            <span class="text-slate-400">РЕКОРД ВИСОТИ:</span>
+            <span id="headerBestHeight" class="font-bold text-[#ffb703] ml-1">0 м</span>
+          </div>
+          <button id="soundToggleBtn" type="button" class="pixel-btn px-3 py-2 bg-[#181e2e] text-[#00f5d4] text-xs font-bold flex items-center gap-2">
+            <span id="soundIcon">🔊</span>
+            <span id="soundLabel">8-BIT ЗВУК: УВІМК</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Навігація по 4 модулях світу -->
+      <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4" aria-label="Модулі світу Піксельний Пік">
+        <button type="button" data-tab="game" class="tab-btn pixel-btn px-3 py-2.5 text-xs sm:text-sm font-bold bg-[#00f5d4] text-[#090b10] flex items-center justify-center gap-2">
+          <span>🧗</span>
+          <span>1. ГРА: СХОДЖЕННЯ</span>
+        </button>
+        <button type="button" data-tab="bot" class="tab-btn pixel-btn px-3 py-2.5 text-xs sm:text-sm font-bold bg-[#181e2e] text-[#38bdf8] flex items-center justify-center gap-2">
+          <span>🤖</span>
+          <span>2. TG-БОТ ЧЕЛЕНДЖІВ</span>
+        </button>
+        <button type="button" data-tab="gallery" class="tab-btn pixel-btn px-3 py-2.5 text-xs sm:text-sm font-bold bg-[#181e2e] text-[#ff2a85] flex items-center justify-center gap-2">
+          <span>🖼️</span>
+          <span>3. САЙТ: АРТ-ГАЛЕРЕЯ</span>
+        </button>
+        <button type="button" data-tab="notes" class="tab-btn pixel-btn px-3 py-2.5 text-xs sm:text-sm font-bold bg-[#181e2e] text-[#ffb703] flex items-center justify-center gap-2">
+          <span>📓</span>
+          <span>4. ЗАСТОСУНОК: НОТАТНИК</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Контейнер для внутрішніх повідомлень (замість alert) -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+  <!-- Основний контент -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+
+    <!-- ==================== МОДУЛЬ 1: 8-БІТНА ГРА ПРО СХОДЖЕННЯ ==================== -->
+    <section id="tab-game" class="module-section space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Ліва колонка: Підготовка, спорядження та погодні умови -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="pixel-box p-4 sm:p-5">
+            <div class="flex items-center justify-between border-b-2 border-[#2e3856] pb-3 mb-4">
+              <h2 class="font-pixel text-xs sm:text-sm text-[#00f5d4]">СПОРЯДЖЕННЯ ПЕРЕД СТАРТОМ</h2>
+              <span class="text-xs px-2 py-0.5 bg-[#00f5d4]/15 text-[#00f5d4] rounded">GEAR</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">
+              Обери одне ключове спорядження для підкорення скелі «Піксельний Пік»:
+            </p>
+            <div class="space-y-2.5" id="gearSelector">
+              <label class="gear-option block p-3 rounded border-2 border-[#00f5d4] bg-[#00f5d4]/10 cursor-pointer transition">
+                <div class="flex items-start gap-3">
+                  <input type="radio" name="gear" value="chalk" checked class="mt-1 accent-[#00f5d4]">
+                  <div>
+                    <div class="font-bold text-sm text-[#00f5d4]">⚪ Мішечок з магнезією</div>
+                    <div class="text-xs text-slate-300 mt-0.5">Надійне тертя: витривалість (Stamina) падає на 35% повільніше, навіть у дощ.</div>
+                  </div>
+                </div>
+              </label>
+
+              <label class="gear-option block p-3 rounded border-2 border-[#2e3856] bg-[#181e2e] hover:border-[#ffb703] cursor-pointer transition">
+                <div class="flex items-start gap-3">
+                  <input type="radio" name="gear" value="shoes" class="mt-1 accent-[#ffb703]">
+                  <div>
+                    <div class="font-bold text-sm text-[#ffb703]">👟 Агресивні скельники</div>
+                    <div class="text-xs text-slate-300 mt-0.5">Точна постановка ніг: +45% до швидкості пересування та вищий стрибок між зачепами.</div>
+                  </div>
+                </div>
+              </label>
+
+              <label class="gear-option block p-3 rounded border-2 border-[#2e3856] bg-[#181e2e] hover:border-[#ff2a85] cursor-pointer transition">
+                <div class="flex items-start gap-3">
+                  <input type="radio" name="gear" value="rope" class="mt-1 accent-[#ff2a85]">
+                  <div>
+                    <div class="font-bold text-sm text-[#ff2a85]">🪢 Динамічна мотузка та відтяжки</div>
+                    <div class="text-xs text-slate-300 mt-0.5">Нижня страховка: рятує від 1 зриву або виснаження, повертаючи 60% сил.</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Погодний довідник та керування -->
+          <div class="pixel-box p-4 sm:p-5 space-y-4">
+            <h3 class="font-pixel text-xs text-[#ffb703]">ДИНАМІЧНА ПОГОДА НА СКЕЛІ</h3>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-[#181e2e] rounded border border-[#2e3856]">
+                <span class="text-[#ffb703] font-bold">☀️ Сонячно:</span>
+                <p class="text-slate-400 mt-0.5">Ідеальне зчеплення, стандартний темп.</p>
+              </div>
+              <div class="p-2 bg-[#181e2e] rounded border border-[#2e3856]">
+                <span class="text-[#38bdf8] font-bold">💨 Сильний вітер:</span>
+                <p class="text-slate-400 mt-0.5">Пориви зносять скелелаза вліво або вправо!</p>
+              </div>
+              <div class="p-2 bg-[#181e2e] rounded border border-[#2e3856]">
+                <span class="text-[#00f5d4] font-bold">🌧️ Дощ / Слизько:</span>
+                <p class="text-slate-400 mt-0.5">Мокрі зачепи швидше виснажують руки.</p>
+              </div>
+              <div class="p-2 bg-[#181e2e] rounded border border-[#2e3856]">
+                <span class="text-white font-bold">❄️ Снігопад:</span>
+                <p class="text-slate-400 mt-0.5">Холод сковує рухи та погіршує видимість.</p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-[#2e3856] text-xs text-slate-300 space-y-1">
+              <div class="font-bold text-white">🎮 Керування:</div>
+              <p>• <span class="text-[#00f5d4]">W / A / S / D</span> або <span class="text-[#00f5d4]">Стрілки</span> — рух по скелі та стрибок до зачепа.</p>
+              <p>• <span class="text-[#39ff14]">Зелені зачепи</span> — зручні «ручки», відновлюють Stamina.</p>
+              <p>• <span class="text-[#ffb703]">Золоті кристали магнезії</span> — миттєвий бонус витривалості.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Права колонка: Ігровий екран 8-біт -->
+        <div class="lg:col-span-7">
+          <div class="pixel-box pixel-box-cyan p-3 sm:p-4">
+            <!-- Верхня панель HUD -->
+            <div class="grid grid-cols-3 gap-2 mb-3 bg-[#0b0e17] p-2.5 rounded border-2 border-[#2e3856]">
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Висота</div>
+                <div id="hudHeight" class="font-pixel text-xs sm:text-sm text-[#00f5d4] mt-0.5">0 м</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Погода</div>
+                <div id="hudWeather" class="text-xs sm:text-sm font-bold text-[#ffb703] mt-0.5">☀️ Сонячно</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase flex justify-between">
+                  <span>Витривалість</span>
+                  <span id="hudStaminaText">100%</span>
+                </div>
+                <div class="w-full h-3 bg-[#1e263d] rounded overflow-hidden mt-1 border border-slate-600">
+                  <div id="hudStaminaBar" class="h-full bg-[#39ff14] transition-all duration-100" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Індикатор страховки -->
+            <div class="flex items-center justify-between text-xs mb-2 px-1">
+              <div id="hudGearStatus" class="text-slate-300">Спорядження: <span class="text-[#00f5d4] font-bold">Магнезія</span></div>
+              <div id="hudRopeStatus" class="hidden text-[#ff2a85] font-bold">🪢 Страховка активна (1 життя)</div>
+            </div>
+
+            <!-- Контейнер Canvas -->
+            <div class="relative w-full aspect-[4/3] max-h-[480px] bg-[#0a0f1d] border-2 border-[#2e3856] rounded overflow-hidden">
+              <canvas id="climbCanvas" class="pixelated w-full h-full block"></canvas>
+
+              <!-- Оверлей старту / завершення гри -->
+              <div id="gameOverlay" class="absolute inset-0 bg-[#090b10]/85 flex flex-col items-center justify-center p-4 text-center">
+                <div class="text-3xl mb-2">🏔️</div>
+                <h3 id="overlayTitle" class="font-pixel text-sm sm:text-base text-[#00f5d4] mb-2">ПІДКОРЕННЯ ПІКСЕЛЬНОГО ПІКУ</h3>
+                <p id="overlayDesc" class="text-xs sm:text-sm text-slate-300 max-w-md mb-5">
+                  Стрибай від зачепу до зачепу, стеж за витривалістю та пристосовуйся до зміни погоди!
+                </p>
+                <div id="overlayStats" class="hidden mb-4 p-3 bg-[#181e2e] border border-[#2e3856] rounded text-xs space-y-1">
+                  <div>Досягнута висота: <span id="finalHeight" class="text-[#ffb703] font-bold">0 м</span></div>
+                  <div>Рекорд сесії: <span id="finalBest" class="text-[#39ff14] font-bold">0 м</span></div>
+                </div>
+                <button id="startGameBtn" type="button" class="pixel-btn px-6 py-3 bg-[#39ff14] text-[#090b10] font-pixel text-xs sm:text-sm font-bold">
+                  ▶ ПОЧАТИ СХОДЖЕННЯ
+                </button>
+              </div>
+            </div>
+
+            <!-- Екранні кнопки керування для смартфонів та миші -->
+            <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div class="grid grid-cols-3 gap-2 w-full sm:w-auto max-w-[230px] mx-auto sm:mx-0">
+                <div></div>
+                <button type="button" data-dir="up" class="ctrl-btn pixel-btn py-3 px-4 bg-[#181e2e] text-[#00f5d4] font-bold text-base active:bg-[#00f5d4] active:text-black" aria-label="Вгору">▲</button>
+                <div></div>
+                <button type="button" data-dir="left" class="ctrl-btn pixel-btn py-3 px-4 bg-[#181e2e] text-[#00f5d4] font-bold text-base active:bg-[#00f5d4] active:text-black" aria-label="Вліво">◀</button>
+                <button type="button" data-dir="down" class="ctrl-btn pixel-btn py-3 px-4 bg-[#181e2e] text-[#00f5d4] font-bold text-base active:bg-[#00f5d4] active:text-black" aria-label="Вниз">▼</button>
+                <button type="button" data-dir="right" class="ctrl-btn pixel-btn py-3 px-4 bg-[#181e2e] text-[#00f5d4] font-bold text-base active:bg-[#00f5d4] active:text-black" aria-label="Вправо">▶</button>
+              </div>
+
+              <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
+                <button id="chalkBoostBtn" type="button" class="pixel-btn px-3 py-2.5 bg-[#181e2e] text-[#ffb703] text-xs font-bold">
+                  ✋ СТРУСИТИ РУКИ (+STAMINA)
+                </button>
+                <button id="restartGameBtn" type="button" class="pixel-btn px-3 py-2.5 bg-[#181e2e] text-[#ff2a85] text-xs font-bold">
+                  ↻ ЗАНОВО
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== МОДУЛЬ 2: TELEGRAM-БОТ ЧЕЛЕНДЖІВ ==================== -->
+    <section id="tab-bot" class="module-section hidden">
+      <div class="max-w-3xl mx-auto">
+        <div class="pixel-box overflow-hidden border-[#38bdf8]">
+          <!-- Шапка месенджера Telegram у 8-бітному стилі -->
+          <div class="bg-[#17212b] border-b-2 border-[#2e3856] px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded bg-[#0088cc] border-2 border-[#38bdf8] flex items-center justify-center text-xl shadow">
+                🧗‍♂️
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-white text-sm sm:text-base">PixelPeak Coach Bot</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-[#0088cc]/30 text-[#38bdf8] rounded border border-[#38bdf8]/40">BOT</span>
+                </div>
+                <div class="text-xs text-[#38bdf8]">@PixelPeakCoachBot • онлайн</div>
+              </div>
+            </div>
+            <div class="text-right text-xs">
+              <div class="text-slate-400">Виконано челенджів:</div>
+              <div id="botCompletedCount" class="font-bold text-[#39ff14] text-sm">0</div>
+            </div>
+          </div>
+
+          <!-- Панель вибору складності -->
+          <div class="bg-[#0e1621] px-4 py-2.5 border-b border-[#2e3856] flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs text-slate-400">Рівень складності тренування:</span>
+            <div class="flex gap-1.5" id="botDifficultyGroup">
+              <button type="button" data-diff="novice" class="diff-btn pixel-btn px-2.5 py-1 text-xs font-bold bg-[#39ff14] text-black">
+                🟢 Новачок
+              </button>
+              <button type="button" data-diff="amateur" class="diff-btn pixel-btn px-2.5 py-1 text-xs font-bold bg-[#181e2e] text-[#ffb703]">
+                🟡 Любитель
+              </button>
+              <button type="button" data-diff="pro" class="diff-btn pixel-btn px-2.5 py-1 text-xs font-bold bg-[#181e2e] text-[#ff2a85]">
+                🔴 Профі
+              </button>
+            </div>
+          </div>
+
+          <!-- Вікно чату -->
+          <div id="botChatMessages" class="h-[380px] overflow-y-auto p-4 space-y-3 bg-[#0b111a]">
+            <!-- Вітальне повідомлення бота -->
+            <div class="flex items-start gap-2.5 max-w-[88%]">
+              <div class="w-8 h-8 rounded bg-[#0088cc] flex items-center justify-center text-sm shrink-0">🤖</div>
+              <div class="bg-[#182533] border border-[#2b3d52] rounded-lg rounded-tl-none p-3 text-xs sm:text-sm space-y-1.5">
+                <div class="font-bold text-[#38bdf8]">@PixelPeakCoachBot</div>
+                <p class="text-slate-200">
+                  Привіт, скелелазе! Я твій кишеньковий 8-бітний тренер. Обирай рівень складності та натискай <span class="text-[#00f5d4] font-bold">«Згенерувати челендж»</span>, щоб отримати завдання на поточне тренування!
+                </p>
+                <div class="text-[10px] text-slate-400 text-right">10:00</div>
